@@ -1,6 +1,10 @@
 import type { DatabaseSync } from "node:sqlite";
 import { formatErrorMessage } from "../../infra/errors.js";
 
+function escapeId(id: string): string {
+  return '"' + id.replace(/"/g, '""') + '"';
+}
+
 export function ensureMemoryIndexSchema(params: {
   db: DatabaseSync;
   embeddingCacheTable: string;
@@ -39,8 +43,9 @@ export function ensureMemoryIndexSchema(params: {
     );
   `);
   if (params.cacheEnabled) {
+    const safeCacheTable = escapeId(params.embeddingCacheTable);
     params.db.exec(`
-      CREATE TABLE IF NOT EXISTS ${params.embeddingCacheTable} (
+      CREATE TABLE IF NOT EXISTS ${safeCacheTable} (
         provider TEXT NOT NULL,
         model TEXT NOT NULL,
         provider_key TEXT NOT NULL,
@@ -52,7 +57,7 @@ export function ensureMemoryIndexSchema(params: {
       );
     `);
     params.db.exec(
-      `CREATE INDEX IF NOT EXISTS idx_embedding_cache_updated_at ON ${params.embeddingCacheTable}(updated_at);`,
+      `CREATE INDEX IF NOT EXISTS idx_embedding_cache_updated_at ON ${safeCacheTable}(updated_at);`,
     );
   }
 
@@ -63,7 +68,7 @@ export function ensureMemoryIndexSchema(params: {
       const tokenizer = params.ftsTokenizer ?? "unicode61";
       const tokenizeClause = tokenizer === "trigram" ? `, tokenize='trigram case_sensitive 0'` : "";
       params.db.exec(
-        `CREATE VIRTUAL TABLE IF NOT EXISTS ${params.ftsTable} USING fts5(\n` +
+        `CREATE VIRTUAL TABLE IF NOT EXISTS ${escapeId(params.ftsTable)} USING fts5(\n` +
           `  text,\n` +
           `  id UNINDEXED,\n` +
           `  path UNINDEXED,\n` +
@@ -95,9 +100,10 @@ function ensureColumn(
   column: string,
   definition: string,
 ): void {
-  const rows = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+  const safeTable = escapeId(table);
+  const rows = db.prepare(`PRAGMA table_info(${safeTable})`).all() as Array<{ name: string }>;
   if (rows.some((row) => row.name === column)) {
     return;
   }
-  db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  db.exec(`ALTER TABLE ${safeTable} ADD COLUMN ${escapeId(column)} ${definition}`);
 }
