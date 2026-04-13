@@ -98,6 +98,13 @@ function shouldIgnoreMemoryWatchPath(watchPath: string): boolean {
   return parts.some((segment) => IGNORED_MEMORY_WATCH_DIR_NAMES.has(segment));
 }
 
+function escapeSqliteIdentifier(identifier: string): string {
+  return identifier
+    .split(".")
+    .map((part) => `"${part.replace(/"/g, '""')}"`)
+    .join(".");
+}
+
 export function runDetachedMemorySync(sync: () => Promise<void>, reason: "interval" | "watch") {
   void sync().catch((err) => {
     log.warn(`memory sync failed (${reason}): ${String(err)}`);
@@ -650,7 +657,9 @@ export abstract class MemoryManagerSyncOps {
         : null;
     const deleteFtsRowsByPathAndSource =
       this.fts.enabled && this.fts.available
-        ? this.db.prepare(`DELETE FROM ${FTS_TABLE} WHERE path = ? AND source = ?`)
+        ? this.db.prepare(
+            `DELETE FROM ${escapeSqliteIdentifier(FTS_TABLE)} WHERE path = ? AND source = ?`,
+          )
         : null;
 
     const files = await listMemoryFiles(
@@ -749,7 +758,9 @@ export abstract class MemoryManagerSyncOps {
         : null;
     const deleteFtsRowsByPathSourceAndModel =
       this.fts.enabled && this.fts.available
-        ? this.db.prepare(`DELETE FROM ${FTS_TABLE} WHERE path = ? AND source = ? AND model = ?`)
+        ? this.db.prepare(
+            `DELETE FROM ${escapeSqliteIdentifier(FTS_TABLE)} WHERE path = ? AND source = ? AND model = ?`,
+          )
         : null;
 
     const targetSessionFiles = params.needsFullReindex
@@ -1268,7 +1279,7 @@ export abstract class MemoryManagerSyncOps {
     this.db.exec(`DELETE FROM chunks`);
     if (this.fts.enabled && this.fts.available) {
       try {
-        this.db.exec(`DROP TABLE IF EXISTS ${FTS_TABLE}`);
+        this.db.exec(`DROP TABLE IF EXISTS ${escapeSqliteIdentifier(FTS_TABLE)}`);
       } catch {}
     }
     this.ensureSchema();

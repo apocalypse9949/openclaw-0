@@ -53,6 +53,13 @@ const EMBEDDING_BATCH_TIMEOUT_LOCAL_MS = 10 * 60_000;
 
 const log = createSubsystemLogger("memory");
 
+function escapeSqliteIdentifier(identifier: string): string {
+  return identifier
+    .split(".")
+    .map((part) => `"${part.replace(/"/g, '""')}"`)
+    .join(".");
+}
+
 export abstract class MemoryManagerEmbeddingOps extends MemoryManagerSyncOps {
   protected abstract batchFailureCount: number;
   protected abstract batchFailureLastError?: string;
@@ -562,7 +569,7 @@ export abstract class MemoryManagerEmbeddingOps extends MemoryManagerSyncOps {
       if (this.fts.enabled && this.fts.available) {
         this.db
           .prepare(
-            `INSERT INTO ${FTS_TABLE} (text, id, path, source, model, start_line, end_line)\n` +
+            `INSERT INTO ${escapeSqliteIdentifier(FTS_TABLE)} (text, id, path, source, model, start_line, end_line)\n` +
               ` VALUES (?, ?, ?, ?, ?, ?, ?)`,
           )
           .run(chunk.text, id, entry.path, source, model, chunk.startLine, chunk.endLine);

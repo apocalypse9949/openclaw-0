@@ -10,6 +10,13 @@ const vectorToBlob = (embedding: number[]): Buffer =>
 const FTS_QUERY_TOKEN_RE = /[\p{L}\p{N}_]+/gu;
 const SHORT_CJK_TRIGRAM_RE = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af\u3131-\u3163]/u;
 
+function escapeSqliteIdentifier(identifier: string): string {
+  return identifier
+    .split(".")
+    .map((part) => `"${part.replace(/"/g, '""')}"`)
+    .join(".");
+}
+
 export type SearchSource = string;
 
 export type SearchRowResult = {
@@ -217,7 +224,7 @@ export async function searchKeyword(params: {
   const substringClause = plan.substringTerms.map(() => " AND text LIKE ? ESCAPE '\\'").join("");
   const substringParams = plan.substringTerms.map((term) => `%${escapeLikePattern(term)}%`);
   const whereClause = plan.matchQuery
-    ? `${params.ftsTable} MATCH ?${substringClause}${modelClause}${params.sourceFilter.sql}`
+    ? `${escapeSqliteIdentifier(params.ftsTable)} MATCH ?${substringClause}${modelClause}${params.sourceFilter.sql}`
     : `1=1${substringClause}${modelClause}${params.sourceFilter.sql}`;
   const queryParams = [
     ...(plan.matchQuery ? [plan.matchQuery] : []),
@@ -226,13 +233,13 @@ export async function searchKeyword(params: {
     ...params.sourceFilter.params,
     params.limit,
   ];
-  const rankExpression = plan.matchQuery ? `bm25(${params.ftsTable})` : "0";
+  const rankExpression = plan.matchQuery ? `bm25(${escapeSqliteIdentifier(params.ftsTable)})` : "0";
 
   const rows = params.db
     .prepare(
       `SELECT id, path, source, start_line, end_line, text,\n` +
         `       ${rankExpression} AS rank\n` +
-        `  FROM ${params.ftsTable}\n` +
+        `  FROM ${escapeSqliteIdentifier(params.ftsTable)}\n` +
         ` WHERE ${whereClause}\n` +
         ` ORDER BY rank ASC\n` +
         ` LIMIT ?`,

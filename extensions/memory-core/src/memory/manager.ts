@@ -64,6 +64,14 @@ const log = createSubsystemLogger("memory");
 
 const { cache: INDEX_CACHE, pending: INDEX_CACHE_PENDING } =
   resolveSingletonManagedCache<MemoryIndexManager>(MEMORY_INDEX_MANAGER_CACHE_KEY);
+
+function escapeSqliteIdentifier(identifier: string): string {
+  return identifier
+    .split(".")
+    .map((part) => `"${part.replace(/"/g, '""')}"`)
+    .join(".");
+}
+
 export async function closeAllMemoryIndexManagers(): Promise<void> {
   await closeManagedCacheEntries({
     cache: INDEX_CACHE,
@@ -454,7 +462,9 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (!this.fts.enabled || !this.fts.available) {
       return false;
     }
-    const ftsRow = this.db.prepare(`SELECT 1 as found FROM ${FTS_TABLE} LIMIT 1`).get() as
+    const ftsRow = this.db
+      .prepare(`SELECT 1 as found FROM ${escapeSqliteIdentifier(FTS_TABLE)} LIMIT 1`)
+      .get() as
       | {
           found?: number;
         }
