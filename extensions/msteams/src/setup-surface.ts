@@ -1,4 +1,4 @@
-import { exec } from "node:child_process";
+import { execFile } from "node:child_process";
 import {
   createTopLevelChannelAllowFromSetter,
   createTopLevelChannelDmPolicy,
@@ -273,7 +273,8 @@ export const msteamsSetupWizard: ChannelSetupWizard = {
               openUrl: (url) =>
                 new Promise<void>((resolve, reject) => {
                   const cmd = process.platform === "darwin" ? "open" : "xdg-open";
-                  exec(`${cmd} ${JSON.stringify(url)}`, (err) => (err ? reject(err) : resolve()));
+                  // SECURITY: Use execFile to avoid command injection via shell
+                  execFile(cmd, [url], (err) => (err ? reject(err) : resolve()));
                 }),
               log: (msg) => params.prompter.note(msg),
               note: (msg, title) => params.prompter.note(msg, title),
