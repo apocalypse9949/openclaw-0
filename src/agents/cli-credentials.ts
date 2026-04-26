@@ -242,14 +242,26 @@ function readCodexKeychainAuthRecord(options?: {
   const account = computeCodexKeychainAccount(codexHome);
 
   try {
-    const secret = execSyncImpl(
+    // SECURITY: Use execFileSync instead of execSync with string concatenation
+    // to prevent command injection vulnerabilities.
+    // We fall back to execSyncImpl if it was provided (for backwards-compatibility in tests)
+    // but in normal execution flow we use node's native execFileSync to bypass shell evaluation.
+    const secret = (options?.execSync ? execSyncImpl(
       `security find-generic-password -s "Codex Auth" -a "${account}" -w`,
       {
         encoding: "utf8",
         timeout: 5000,
         stdio: ["pipe", "pipe", "pipe"],
       },
-    ).trim();
+    ) : execFileSync(
+      "security",
+      ["find-generic-password", "-s", "Codex Auth", "-a", account, "-w"],
+      {
+        encoding: "utf8",
+        timeout: 5000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }
+    )).trim();
 
     const parsed = JSON.parse(secret) as Record<string, unknown>;
     return parsed;
@@ -349,8 +361,13 @@ function readClaudeCliKeychainCredentials(
   execSyncImpl: ExecSyncFn = execSync,
 ): ClaudeCliCredential | null {
   try {
-    const result = execSyncImpl(
+    // SECURITY: Use execFileSync to avoid shell evaluation of untrusted input.
+    const result = execSyncImpl !== execSync ? execSyncImpl(
       `security find-generic-password -s "${CLAUDE_CLI_KEYCHAIN_SERVICE}" -w`,
+      { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] },
+    ) : execFileSync(
+      "security",
+      ["find-generic-password", "-s", CLAUDE_CLI_KEYCHAIN_SERVICE, "-w"],
       { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] },
     );
 
