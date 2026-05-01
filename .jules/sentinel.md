@@ -1,0 +1,4 @@
+## 2025-02-20 - Prevent Command Injection in Keychain Reads
+**Vulnerability:** Found `execSync` being used with string interpolation in `readClaudeCliKeychainCredentials` and `readCodexKeychainAuthRecord` to execute the macOS `security` utility for retrieving credentials. If an attacker controls parts of the string, such as `CLAUDE_CLI_KEYCHAIN_SERVICE` or the result of `computeCodexKeychainAccount(codexHome)`, they could inject arbitrary shell commands.
+**Learning:** Using `execSync` with backticks or double quotes evaluates shell constructs (like `$()`). This is unsafe for commands that execute binaries even with seemingly safe string interpolation.
+**Prevention:** Use `execFileSync` instead. It does not spawn a shell, but directly invokes the target executable and passes arguments as an array, eliminating the risk of shell injection.
