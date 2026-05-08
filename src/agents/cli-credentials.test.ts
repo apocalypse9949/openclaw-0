@@ -45,7 +45,7 @@ async function readCachedClaudeCliCredentials(allowKeychainPrompt: boolean) {
     allowKeychainPrompt,
     ttlMs: CLI_CREDENTIALS_CACHE_TTL_MS,
     platform: "darwin",
-    execSync: execSyncMock,
+    execFileSync: execFileSyncMock,
   });
 }
 
@@ -56,7 +56,7 @@ function createJwtWithExp(expSeconds: number): string {
 }
 
 function mockClaudeCliCredentialRead() {
-  execSyncMock.mockImplementation(() =>
+  execFileSyncMock.mockImplementation(() =>
     JSON.stringify({
       claudeAiOauth: {
         accessToken: `token-${Date.now()}`,
@@ -238,7 +238,7 @@ describe("cli credentials", () => {
       } else {
         expect(second).not.toEqual(first);
       }
-      expect(execSyncMock).toHaveBeenCalledTimes(expectedCalls);
+      expect(execFileSyncMock).toHaveBeenCalledTimes(expectedCalls);
     },
   );
 
@@ -249,20 +249,23 @@ describe("cli credentials", () => {
 
     const accountHash = "cli|";
 
-    execSyncMock.mockImplementation((command: unknown) => {
-      const cmd = String(command);
-      expect(cmd).toContain("Codex Auth");
-      expect(cmd).toContain(accountHash);
-      return JSON.stringify({
-        tokens: {
-          access_token: createJwtWithExp(expSeconds),
-          refresh_token: "keychain-refresh",
-        },
-        last_refresh: "2026-01-01T00:00:00Z",
-      });
+    execFileSyncMock.mockImplementation((cmd: unknown, args: unknown) => {
+      const argv = Array.isArray(args) ? args.map(String) : [];
+      if (String(cmd) === "security" && argv.includes("find-generic-password")) {
+        expect(argv).toContain("Codex Auth");
+        expect(argv.some((a) => a.includes(accountHash))).toBe(true);
+        return JSON.stringify({
+          tokens: {
+            access_token: createJwtWithExp(expSeconds),
+            refresh_token: "keychain-refresh",
+          },
+          last_refresh: "2026-01-01T00:00:00Z",
+        });
+      }
+      return "";
     });
 
-    const creds = readCodexCliCredentials({ platform: "darwin", execSync: execSyncMock });
+    const creds = readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock });
 
     expect(creds).toMatchObject({
       access: createJwtWithExp(expSeconds),
@@ -293,7 +296,7 @@ describe("cli credentials", () => {
       "utf8",
     );
 
-    const creds = readCodexCliCredentials({ execSync: execSyncMock });
+    const creds = readCodexCliCredentials({ execFileSync: execFileSyncMock });
 
     expect(creds).toMatchObject({
       access: createJwtWithExp(expSeconds),
@@ -327,7 +330,7 @@ describe("cli credentials", () => {
       const first = readCodexCliCredentialsCached({
         ttlMs: CLI_CREDENTIALS_CACHE_TTL_MS,
         platform: "linux",
-        execSync: execSyncMock,
+        execFileSync: execFileSyncMock,
       });
 
       expect(first).toMatchObject({
@@ -351,7 +354,7 @@ describe("cli credentials", () => {
       const second = readCodexCliCredentialsCached({
         ttlMs: CLI_CREDENTIALS_CACHE_TTL_MS,
         platform: "linux",
-        execSync: execSyncMock,
+        execFileSync: execFileSyncMock,
       });
 
       expect(second).toMatchObject({
@@ -419,9 +422,10 @@ describe("cli credentials", () => {
     process.env.CODEX_HOME = tempHome;
     try {
       const expSeconds = Math.floor(Date.parse("2026-03-26T12:34:56Z") / 1000);
-      execSyncMock.mockImplementation((command: unknown) => {
-        const cmd = String(command);
-        expect(cmd).toContain("Codex Auth");
+      execFileSyncMock.mockImplementation((cmd: unknown, args: unknown) => {
+        const argv = Array.isArray(args) ? args.map(String) : [];
+        expect(String(cmd)).toBe("security");
+        expect(argv).toContain("Codex Auth");
         return JSON.stringify({
           auth_mode: "chatgpt",
           tokens: {
@@ -443,13 +447,12 @@ describe("cli credentials", () => {
         },
         {
           platform: "darwin",
-          execSync: execSyncMock,
           execFileSync: execFileSyncMock,
         },
       );
 
       expect(ok).toBe(true);
-      expect(execFileSyncMock).toHaveBeenCalledTimes(1);
+      expect(execFileSyncMock).toHaveBeenCalledTimes(2); // One for read, one for write
       const addCall = getAddGenericPasswordCall();
       expect(addCall?.[0]).toBe("security");
       const payload = (() => {
