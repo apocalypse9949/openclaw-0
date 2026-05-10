@@ -233,17 +233,19 @@ function decodeJwtExpiryMs(token: string): number | null {
 function readCodexKeychainAuthRecord(options?: {
   codexHome?: string;
   platform?: NodeJS.Platform;
-  execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): Record<string, unknown> | null {
-  const { platform, execSyncImpl, codexHome } = resolveCodexKeychainParams(options);
+  const { platform, codexHome } = resolveCodexKeychainParams(options);
+  const execFileSyncImpl = options?.execFileSync ?? execFileSync;
   if (platform !== "darwin") {
     return null;
   }
   const account = computeCodexKeychainAccount(codexHome);
 
   try {
-    const secret = execSyncImpl(
-      `security find-generic-password -s "Codex Auth" -a "${account}" -w`,
+    const secret = execFileSyncImpl(
+      "security",
+      ["find-generic-password", "-s", "Codex Auth", "-a", account, "-w"],
       {
         encoding: "utf8",
         timeout: 5000,
@@ -261,7 +263,7 @@ function readCodexKeychainAuthRecord(options?: {
 function readCodexKeychainCredentials(options?: {
   codexHome?: string;
   platform?: NodeJS.Platform;
-  execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): CodexCliCredential | null {
   const parsed = readCodexKeychainAuthRecord(options);
   if (!parsed) {
@@ -346,11 +348,12 @@ function readMiniMaxCliCredentials(options?: { homeDir?: string }): MiniMaxCliCr
 }
 
 function readClaudeCliKeychainCredentials(
-  execSyncImpl: ExecSyncFn = execSync,
+  execFileSyncImpl: ExecFileSyncFn = execFileSync,
 ): ClaudeCliCredential | null {
   try {
-    const result = execSyncImpl(
-      `security find-generic-password -s "${CLAUDE_CLI_KEYCHAIN_SERVICE}" -w`,
+    const result = execFileSyncImpl(
+      "security",
+      ["find-generic-password", "-s", CLAUDE_CLI_KEYCHAIN_SERVICE, "-w"],
       { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] },
     );
 
@@ -366,10 +369,11 @@ export function readClaudeCliCredentials(options?: {
   platform?: NodeJS.Platform;
   homeDir?: string;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): ClaudeCliCredential | null {
   const platform = options?.platform ?? process.platform;
   if (platform === "darwin" && options?.allowKeychainPrompt !== false) {
-    const keychainCreds = readClaudeCliKeychainCredentials(options?.execSync);
+    const keychainCreds = readClaudeCliKeychainCredentials(options?.execFileSync);
     if (keychainCreds) {
       log.info("read anthropic credentials from claude cli keychain", {
         type: keychainCreds.type,
@@ -394,6 +398,7 @@ export function readClaudeCliCredentialsCached(options?: {
   platform?: NodeJS.Platform;
   homeDir?: string;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): ClaudeCliCredential | null {
   return readCachedCliCredential({
     ttlMs: options?.ttlMs ?? 0,
@@ -405,6 +410,7 @@ export function readClaudeCliCredentialsCached(options?: {
         platform: options?.platform,
         homeDir: options?.homeDir,
         execSync: options?.execSync,
+        execFileSync: options?.execFileSync,
       }),
     setCache: (next) => {
       claudeCliCache = next;
@@ -650,11 +656,12 @@ export function readCodexCliCredentials(options?: {
   codexHome?: string;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): CodexCliCredential | null {
   const keychain = readCodexKeychainCredentials({
     codexHome: options?.codexHome,
     platform: options?.platform,
-    execSync: options?.execSync,
+    execFileSync: options?.execFileSync,
   });
   if (keychain) {
     return keychain;
@@ -706,6 +713,7 @@ export function readCodexCliCredentialsCached(options?: {
   ttlMs?: number;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): CodexCliCredential | null {
   const authPath = path.join(resolveCodexHomePath(options?.codexHome), CODEX_CLI_AUTH_FILENAME);
   return readCachedCliCredential({
@@ -717,6 +725,7 @@ export function readCodexCliCredentialsCached(options?: {
         codexHome: options?.codexHome,
         platform: options?.platform,
         execSync: options?.execSync,
+        execFileSync: options?.execFileSync,
       }),
     setCache: (next) => {
       codexCliCache = next;
