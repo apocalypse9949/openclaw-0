@@ -1,0 +1,4 @@
+## 2025-01-25 - Prevent Command Injection with macOS `security` utility
+**Vulnerability:** Command injection was possible in `src/agents/cli-credentials.ts` where `execSync` was used to execute the macOS `security find-generic-password` command. Template literals were used to construct the command string with user-influenced data (e.g., the keychain account name), meaning shell meta-characters could be evaluated by the underlying shell spawned by `execSync`.
+**Learning:** `execSync` (and `exec`) interpret their string argument in a shell by default, allowing injection. This is particularly dangerous for commands that deal with sensitive inputs or system state.
+**Prevention:** Always use `execFileSync` (or `execFile`/`spawn`) with an explicit array of arguments. This bypasses the shell, passing arguments directly to the executable and preventing any interpretation of shell meta-characters.
