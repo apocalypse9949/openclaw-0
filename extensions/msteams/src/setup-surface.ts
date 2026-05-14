@@ -1,4 +1,4 @@
-import { exec } from "node:child_process";
+import { execFile } from "node:child_process";
 import {
   createTopLevelChannelAllowFromSetter,
   createTopLevelChannelDmPolicy,
@@ -17,7 +17,7 @@ import {
   resolveMSTeamsChannelAllowlist,
   resolveMSTeamsUserAllowlist,
 } from "./resolve-allowlist.js";
-import { createMSTeamsSetupWizardBase, msteamsSetupAdapter } from "./setup-core.js";
+import { createMSTeamsSetupWizardBase } from "./setup-core.js";
 import { resolveMSTeamsCredentials } from "./token.js";
 
 const channel = "msteams" as const;
@@ -273,7 +273,8 @@ export const msteamsSetupWizard: ChannelSetupWizard = {
               openUrl: (url) =>
                 new Promise<void>((resolve, reject) => {
                   const cmd = process.platform === "darwin" ? "open" : "xdg-open";
-                  exec(`${cmd} ${JSON.stringify(url)}`, (err) => (err ? reject(err) : resolve()));
+                  // Sentinel: prevent command injection by using execFile instead of exec with string interpolation
+                  execFile(cmd, [url], (err) => (err ? reject(err) : resolve()));
                 }),
               log: (msg) => params.prompter.note(msg),
               note: (msg, title) => params.prompter.note(msg, title),
