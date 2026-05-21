@@ -1,6 +1,68 @@
 import type { DatabaseSync } from "node:sqlite";
 import { formatErrorMessage } from "../../infra/errors.js";
 
+function quoteIdentifier(identifier: string): string {
+  if (isQuoted(identifier)) return identifier;
+  return `"${identifier.replace(/"/g, '""')}"`;
+}
+
+function isQuoted(s: string): boolean {
+  if (s.length < 2) return false;
+  const first = s[0];
+  const last = s[s.length - 1];
+  if (first === '"' && last === '"') {
+    return !s.substring(1, s.length - 1).replace(/""/g, "").includes('"');
+  }
+  if (first === "`" && last === "`") {
+    return !s.substring(1, s.length - 1).includes("`") ;
+  }
+  if (first === "[" && last === "]") {
+    return !s.substring(1, s.length - 1).includes("]");
+  }
+  return false;
+}
+
+function splitIdentifiers(s: string): string[] {
+  const parts = [];
+  let current = "";
+  let inQuotes = false;
+  let quoteChar = "";
+
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (!inQuotes) {
+      if (c === '"' || c === "`" || c === "[") {
+        inQuotes = true;
+        quoteChar = c === "[" ? "]" : c;
+        current += c;
+      } else if (c === ".") {
+        parts.push(current);
+        current = "";
+      } else {
+        current += c;
+      }
+    } else {
+      current += c;
+      if (c === quoteChar) {
+        if (quoteChar === '"' && i + 1 < s.length && s[i + 1] === '"') {
+          current += s[i + 1];
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      }
+    }
+  }
+  parts.push(current);
+  return parts;
+}
+
+function quoteTable(table: string): string {
+  return splitIdentifiers(table)
+    .map((part) => quoteIdentifier(part))
+    .join(".");
+}
+
 export function ensureMemoryIndexSchema(params: {
   db: DatabaseSync;
   embeddingCacheTable: string;
@@ -39,8 +101,9 @@ export function ensureMemoryIndexSchema(params: {
     );
   `);
   if (params.cacheEnabled) {
+    const quotedCacheTable = quoteTable(params.embeddingCacheTable);
     params.db.exec(`
-      CREATE TABLE IF NOT EXISTS ${params.embeddingCacheTable} (
+      CREATE TABLE IF NOT EXISTS ${quotedCacheTable} (
         provider TEXT NOT NULL,
         model TEXT NOT NULL,
         provider_key TEXT NOT NULL,
@@ -52,7 +115,7 @@ export function ensureMemoryIndexSchema(params: {
       );
     `);
     params.db.exec(
-      `CREATE INDEX IF NOT EXISTS idx_embedding_cache_updated_at ON ${params.embeddingCacheTable}(updated_at);`,
+      `CREATE INDEX IF NOT EXISTS idx_embedding_cache_updated_at ON ${quotedCacheTable}(updated_at);`,
     );
   }
 
@@ -62,8 +125,9 @@ export function ensureMemoryIndexSchema(params: {
     try {
       const tokenizer = params.ftsTokenizer ?? "unicode61";
       const tokenizeClause = tokenizer === "trigram" ? `, tokenize='trigram case_sensitive 0'` : "";
+      const quotedFtsTable = quoteTable(params.ftsTable);
       params.db.exec(
-        `CREATE VIRTUAL TABLE IF NOT EXISTS ${params.ftsTable} USING fts5(\n` +
+        `CREATE VIRTUAL TABLE IF NOT EXISTS ${quotedFtsTable} USING fts5(\n` +
           `  text,\n` +
           `  id UNINDEXED,\n` +
           `  path UNINDEXED,\n` +
@@ -95,9 +159,11 @@ function ensureColumn(
   column: string,
   definition: string,
 ): void {
-  const rows = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+  const quotedTable = quoteTable(table);
+  const rows = db.prepare(`PRAGMA table_info(${quotedTable})`).all() as Array<{ name: string }>;
   if (rows.some((row) => row.name === column)) {
     return;
   }
-  db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  const quotedColumn = quoteIdentifier(column);
+  db.exec(`ALTER TABLE ${quotedTable} ADD COLUMN ${quotedColumn} ${definition}`);
 }
