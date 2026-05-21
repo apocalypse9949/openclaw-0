@@ -1,25 +1,29 @@
 import type { DatabaseSync } from "node:sqlite";
 import { formatErrorMessage } from "../../../../src/infra/errors.js";
 
-function quoteIdentifier(identifier: string): string {
-  if (isQuoted(identifier)) return identifier;
-  return `"${identifier.replace(/"/g, '""')}"`;
-}
-
 function isQuoted(s: string): boolean {
-  if (s.length < 2) return false;
+  if (s.length < 2) {
+    return false;
+  }
   const first = s[0];
   const last = s[s.length - 1];
   if (first === '"' && last === '"') {
-    return !s.substring(1, s.length - 1).replace(/""/g, "").includes('"');
+    return !s.slice(1, s.length - 1).replace(/""/g, "").includes('"');
   }
   if (first === "`" && last === "`") {
-    return !s.substring(1, s.length - 1).includes("`") ;
+    return !s.slice(1, s.length - 1).includes("`");
   }
   if (first === "[" && last === "]") {
-    return !s.substring(1, s.length - 1).includes("]");
+    return !s.slice(1, s.length - 1).includes("]");
   }
   return false;
+}
+
+function quoteIdentifier(identifier: string): string {
+  if (isQuoted(identifier)) {
+    return identifier;
+  }
+  return `"${identifier.replace(/"/g, '""')}"`;
 }
 
 function splitIdentifiers(s: string): string[] {
@@ -159,11 +163,23 @@ function ensureColumn(
   column: string,
   definition: string,
 ): void {
-  const quotedTable = quoteTable(table);
-  const rows = db.prepare("PRAGMA table_info(" + quotedTable + ")").all() as Array<{ name: string }>;
+  const parts = splitIdentifiers(table);
+  const quotedTable = parts.map(quoteIdentifier).join(".");
+  const tableName = parts[parts.length - 1];
+  const schemaPrefix =
+    parts.length > 1
+      ? parts
+          .slice(0, parts.length - 1)
+          .map(quoteIdentifier)
+          .join(".") + "."
+      : "";
+
+  const rows = db
+    .prepare(`PRAGMA ${schemaPrefix}table_info(${quoteIdentifier(tableName)})`)
+    .all() as Array<{ name: string }>;
   if (rows.some((row) => row.name === column)) {
     return;
   }
   const quotedColumn = quoteIdentifier(column);
-  db.exec("ALTER TABLE " + quotedTable + " ADD COLUMN " + quotedColumn + " " + definition);
+  db.exec(`ALTER TABLE ${quotedTable} ADD COLUMN ${quotedColumn} ${definition}`);
 }
