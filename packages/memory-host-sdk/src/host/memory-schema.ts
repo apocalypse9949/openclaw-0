@@ -160,10 +160,10 @@ function ensureColumn(
   definition: string,
 ): void {
   const quotedTable = quoteTable(table);
-  const rows = db.prepare(`PRAGMA table_info(${quotedTable})`).all() as Array<{ name: string }>;
+  const rows = db.prepare("PRAGMA table_info(" + quotedTable + ")").all() as Array<{ name: string }>;
   if (rows.some((row) => row.name === column)) {
     return;
   }
   const quotedColumn = quoteIdentifier(column);
-  db.exec(`ALTER TABLE ${quotedTable} ADD COLUMN ${quotedColumn} ${definition}`);
+  db.exec("ALTER TABLE " + quotedTable + " ADD COLUMN " + quotedColumn + " " + definition);
 }
