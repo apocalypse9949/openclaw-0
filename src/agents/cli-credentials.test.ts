@@ -331,7 +331,10 @@ describe("cli credentials", () => {
 
     execFileSyncMock.mockImplementation((cmd: unknown, args: unknown[]) => {
       const isSecurity = typeof cmd === "string" && cmd === "security";
-      const hasArgs = Array.isArray(args) && args.includes("Codex Auth") && args.some(arg => typeof arg === "string" && arg.includes(accountHash));
+      const hasArgs =
+        Array.isArray(args) &&
+        args.includes("Codex Auth") &&
+        args.some((arg) => typeof arg === "string" && arg.includes(accountHash));
 
       if (isSecurity && hasArgs) {
         return JSON.stringify({
