@@ -1,0 +1,4 @@
+## 2025-02-18 - [Command Injection via String Interpolation in execSync]
+**Vulnerability:** The code previously used `execSync` with a string command containing user-controlled interpolation: ``execSync(`security find-generic-password -s "${CLAUDE_CLI_KEYCHAIN_SERVICE}" -w`)``. Since tokens/service names were potentially untrusted, an attacker could manipulate the value to break out of the string context and execute arbitrary commands.
+**Learning:** `execSync` runs commands through a shell (`/bin/sh`), which interprets special characters like `;`, `$()`, or `` ` ``. String interpolation makes this vulnerable.
+**Prevention:** Use `execFileSync` (or `execFile`) with an explicit argument array. `execFileSync` circumvents the shell and calls the executable directly, treating all elements of the arguments array literally.
