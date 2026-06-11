@@ -72,35 +72,33 @@ export function collectSqliteSchemaShape(db: DatabaseSync): SqliteSchemaShape {
 
 function collectColumns(db: DatabaseSync, tableName: string): ColumnShape[] {
   return (
-    db.prepare(`PRAGMA table_info(${quoteSqliteIdentifier(tableName)})`).all() as TableInfoRow[]
-  )
-    .map(({ name, type, notnull, dflt_value, pk }) => ({
-      name,
-      type,
-      notnull,
-      dflt_value,
-      pk,
-    }))
-    .toSorted((left, right) => left.name.localeCompare(right.name));
+    // 🛡️ Sentinel: Fix potential SQL injection by using table-valued pragma function with parameters
+    (db.prepare("SELECT * FROM pragma_table_info(?)").all(tableName) as TableInfoRow[])
+      .map(({ name, type, notnull, dflt_value, pk }) => ({
+        name,
+        type,
+        notnull,
+        dflt_value,
+        pk,
+      }))
+      .toSorted((left, right) => left.name.localeCompare(right.name))
+  );
 }
 
 function collectIndexes(db: DatabaseSync, tableName: string): IndexShape[] {
   return (
-    db.prepare(`PRAGMA index_list(${quoteSqliteIdentifier(tableName)})`).all() as IndexListRow[]
-  )
-    .map(({ name, unique, origin, partial }) => ({
-      name: normalizeAutoIndexName(name),
-      unique,
-      origin,
-      partial,
-    }))
-    .toSorted((left, right) => left.name.localeCompare(right.name));
+    // 🛡️ Sentinel: Fix potential SQL injection by using table-valued pragma function with parameters
+    (db.prepare("SELECT * FROM pragma_index_list(?)").all(tableName) as IndexListRow[])
+      .map(({ name, unique, origin, partial }) => ({
+        name: normalizeAutoIndexName(name),
+        unique,
+        origin,
+        partial,
+      }))
+      .toSorted((left, right) => left.name.localeCompare(right.name))
+  );
 }
 
 function normalizeAutoIndexName(name: string): string {
   return name.startsWith("sqlite_autoindex_") ? "sqlite_autoindex" : name;
-}
-
-function quoteSqliteIdentifier(identifier: string): string {
-  return `"${identifier.replaceAll('"', '""')}"`;
 }
