@@ -1,0 +1,4 @@
+## 2024-05-24 - [CRITICAL] Command Injection via macOS Keychain Integration
+**Vulnerability:** Command injection vulnerability in `src/agents/cli-credentials.ts` via string interpolation in `execSync`. The application read the macOS keychain using `execSync(\`security find-generic-password -s "Codex Auth" -a "${account}" -w\`)`.
+**Learning:** Even internal tool execution paths (like macOS `security` utility) can be vulnerable to command injection if argument separation isn't strictly maintained. Using shell execution via `execSync` with template strings is inherently unsafe because shell metacharacters within the interpolated variables will be evaluated by the underlying shell.
+**Prevention:** Always prefer `execFileSync` or `spawn` over `exec` or `execSync` when executing shell commands. `execFileSync` prevents the shell from interpreting the command, as arguments are passed as an explicit array, avoiding injection risks entirely.
