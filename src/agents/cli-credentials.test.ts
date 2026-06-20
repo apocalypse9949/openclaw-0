@@ -14,7 +14,7 @@ let readCodexCliCredentials: typeof import("./cli-credentials.js").readCodexCliC
 let readGeminiCliCredentialsCached: typeof import("./cli-credentials.js").readGeminiCliCredentialsCached;
 
 function mockExistingClaudeKeychainItem() {
-  execFileSyncMock.mockImplementation((file, args) => {
+  execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
     const argv = Array.isArray(args) ? args.map(String) : [];
     if (String(file) === "security" && argv.includes("find-generic-password")) {
       return JSON.stringify({
