@@ -14,7 +14,7 @@ let readCodexCliCredentials: typeof import("./cli-credentials.js").readCodexCliC
 let readGeminiCliCredentialsCached: typeof import("./cli-credentials.js").readGeminiCliCredentialsCached;
 
 function mockExistingClaudeKeychainItem() {
-  execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+  execFileSyncMock.mockImplementation((file, args) => {
     const argv = Array.isArray(args) ? args.map(String) : [];
     if (String(file) === "security" && argv.includes("find-generic-password")) {
       return JSON.stringify({
@@ -401,7 +401,9 @@ describe("cli credentials", () => {
         });
       });
 
-      expect(readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
     }
@@ -463,7 +465,9 @@ describe("cli credentials", () => {
     });
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
-      expect(readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
       statSyncSpy.mockRestore();
