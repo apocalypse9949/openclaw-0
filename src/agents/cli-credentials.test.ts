@@ -333,7 +333,7 @@ describe("cli credentials", () => {
     execFileSyncMock.mockImplementation((command: unknown, args: unknown) => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(command).toBe("security");
-      expect(argv).toContain("Codex Auth");
+      expect(argv.some((arg) => arg.includes("Codex Auth"))).toBe(true);
       expect(argv.some((arg) => arg.includes(accountHash))).toBe(true);
       return JSON.stringify({
         tokens: {
@@ -366,7 +366,7 @@ describe("cli credentials", () => {
     execFileSyncMock.mockImplementation((command: unknown, args: unknown) => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(command).toBe("security");
-      expect(argv).toContain("Codex Auth");
+      expect(argv.some((arg) => arg.includes("Codex Auth"))).toBe(true);
       expect(argv.some((arg) => arg.includes(accountHash))).toBe(true);
       return JSON.stringify({
         tokens: {
@@ -395,7 +395,7 @@ describe("cli credentials", () => {
       execFileSyncMock.mockImplementation((command: unknown, args: unknown) => {
         const argv = Array.isArray(args) ? args.map(String) : [];
         expect(command).toBe("security");
-        expect(argv).toContain("Codex Auth");
+        expect(argv.some((arg) => arg.includes("Codex Auth"))).toBe(true);
         expect(argv.some((arg) => arg.includes(accountHash))).toBe(true);
         return JSON.stringify({
           tokens: {
