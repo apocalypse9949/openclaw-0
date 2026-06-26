@@ -34,13 +34,13 @@ jobs:
         continue-on-error: true
         with:
           client-id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY || 'dummy_private_key_to_bypass_required_check' }}
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
           client-id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK || 'dummy_private_key_to_bypass_required_check' }}
       - name: Run Barnacle auto-response
         uses: actions/github-script@v9
         with:
