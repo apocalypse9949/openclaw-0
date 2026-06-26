@@ -1,0 +1,4 @@
+## 2025-02-27 - SQLite PRAGMA SQL Injection Prevention
+**Vulnerability:** String interpolation used in SQLite PRAGMA statements (e.g., `PRAGMA table_info(${tableName})`). This allows SQL injection if `tableName` comes from untrusted input. Standard `PRAGMA` statements do not support parameter binding (`?`).
+**Learning:** PRAGMA statements should never be constructed using string interpolation, even if the input appears safe or is schema-related, to follow defense-in-depth principles.
+**Prevention:** Use parameterized table-valued SQLite PRAGMA functions instead (e.g., `SELECT * FROM pragma_table_info(?)`), which safely support native parameter binding. Ensure the argument is passed as a raw string without explicit identifier quoting like `quoteSqliteIdentifier`, as parameterization natively handles it.
