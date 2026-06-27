@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       autoscrub: ${{ steps.guard.outputs.autoscrub }}
-      autoscrub-client-id: ${{ steps.guard.outputs.autoscrub-owner }}
+      autoscrub-owner: ${{ steps.guard.outputs.autoscrub-owner }}
       autoscrub-repository: ${{ steps.guard.outputs.autoscrub-repository }}
     steps:
       - name: Check out trusted base workflow scripts
