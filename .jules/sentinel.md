@@ -1,4 +1,0 @@
-## 2026-06-26 - [HIGH] Fix Command Injection Vulnerability in macOS Keychain Utility Calls
-**Vulnerability:** Shell command injection risk existed because user-controlled strings (like account hash, codex paths, or credentials) could potentially be interpolated into the `execSync` string, passing the whole string to the shell for evaluation.
-**Learning:** Node's `execSync` evaluates commands inside a sub-shell, enabling injection. Using parameterized arrays with `execFileSync` skips the shell and mitigates shell evaluation bugs for CLI interactions (like calling macOS `security`).
-**Prevention:** Always prefer `execFileSync` or `execFile` with arguments passed as an array over `execSync` or `exec` when interacting with child processes, especially when inputs might include variables from the file system or user settings.
