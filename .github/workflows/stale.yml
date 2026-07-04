@@ -49,13 +49,13 @@ jobs:
         continue-on-error: true
         with:
           app_id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
         continue-on-error: true
         with:
           app_id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Mark stale unassigned issues and pull requests (primary)
         id: stale-primary
         continue-on-error: true
@@ -251,7 +251,7 @@ jobs:
         id: app-token
         with:
           app_id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Backfill stale closures
         uses: actions/github-script@v9
         env:
@@ -495,7 +495,7 @@ jobs:
         id: app-token
         with:
           app_id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - name: Lock closed issues after 48h of no comments
         uses: actions/github-script@v9
         with:

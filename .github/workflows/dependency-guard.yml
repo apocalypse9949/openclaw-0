@@ -60,7 +60,7 @@ jobs:
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app_id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           owner: ${{ needs.dependency-guard-detect.outputs.autoscrub-owner }}
           repositories: ${{ needs.dependency-guard-detect.outputs.autoscrub-repository }}
           permission-contents: write
@@ -72,7 +72,7 @@ jobs:
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app_id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
           owner: ${{ needs.dependency-guard-detect.outputs.autoscrub-owner }}
           repositories: ${{ needs.dependency-guard-detect.outputs.autoscrub-repository }}
           permission-contents: write
