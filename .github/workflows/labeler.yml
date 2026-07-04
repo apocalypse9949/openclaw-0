@@ -36,14 +36,14 @@ jobs:
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          app_id: "2729701"
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          app-id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          app_id: "2971289"
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - uses: actions/labeler@v6
         with:
           configuration-path: .github/labeler.yml
@@ -470,14 +470,14 @@ jobs:
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          app_id: "2729701"
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          app-id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          app_id: "2971289"
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Backfill PR labels
         uses: actions/github-script@v9
         with:
@@ -769,14 +769,14 @@ jobs:
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          app_id: "2729701"
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          app-id: "2971289"
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
+          app_id: "2971289"
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Apply maintainer or trusted-contributor label
         uses: actions/github-script@v9
         with:

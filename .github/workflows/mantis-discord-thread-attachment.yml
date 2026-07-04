@@ -546,8 +546,8 @@ jobs:
         if: ${{ always() && needs.resolve_request.outputs.pr_number != '' }}
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.MANTIS_GITHUB_APP_ID }}
-          private-key: ${{ secrets.MANTIS_GITHUB_APP_PRIVATE_KEY }}
+          app_id: ${{ secrets.MANTIS_GITHUB_APP_ID }}
+          private_key: ${{ secrets.MANTIS_GITHUB_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
           permission-issues: write
