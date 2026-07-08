@@ -26,20 +26,20 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
+          owner: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           permission-issues: read
           permission-members: read
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         continue-on-error: true
         with:
-          app-id: "2971289"
+          owner: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
           permission-issues: read
           permission-members: read

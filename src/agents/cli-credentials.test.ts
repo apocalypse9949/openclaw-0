@@ -334,7 +334,7 @@ describe("cli credentials", () => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(String(binary)).toBe("security");
       expect(argv).toContain("Codex Auth");
-      expect(argv.some(arg => arg.includes(accountHash))).toBe(true);
+      expect(argv.some((arg) => arg.includes(accountHash))).toBe(true);
       return JSON.stringify({
         tokens: {
           id_token: "keychain-id-token",
@@ -367,7 +367,7 @@ describe("cli credentials", () => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(String(binary)).toBe("security");
       expect(argv).toContain("Codex Auth");
-      expect(argv.some(arg => arg.includes(accountHash))).toBe(true);
+      expect(argv.some((arg) => arg.includes(accountHash))).toBe(true);
       return JSON.stringify({
         tokens: {
           access_token: createJwtWithExp(8_700_000_000_000),
@@ -404,7 +404,9 @@ describe("cli credentials", () => {
         });
       });
 
-      expect(readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
     }
@@ -466,7 +468,9 @@ describe("cli credentials", () => {
     });
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
-      expect(readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
       statSyncSpy.mockRestore();
