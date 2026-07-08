@@ -46,7 +46,7 @@ jobs:
         if: ${{ env.HAS_CLAWSWEEPER_APP_PRIVATE_KEY == 'true' }}
         uses: actions/create-github-app-token@v4
         with:
-          owner: ${{ env.CLAWSWEEPER_APP_CLIENT_ID }}
+          client-id: ${{ env.CLAWSWEEPER_APP_CLIENT_ID }}
           private-key: ${{ secrets.CLAWSWEEPER_APP_PRIVATE_KEY }}
           owner: openclaw
           repositories: clawsweeper
@@ -57,7 +57,7 @@ jobs:
         if: ${{ github.event_name == 'issue_comment' && env.HAS_CLAWSWEEPER_APP_PRIVATE_KEY == 'true' }}
         uses: actions/create-github-app-token@v4
         with:
-          owner: ${{ env.CLAWSWEEPER_APP_CLIENT_ID }}
+          client-id: ${{ env.CLAWSWEEPER_APP_CLIENT_ID }}
           private-key: ${{ secrets.CLAWSWEEPER_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}

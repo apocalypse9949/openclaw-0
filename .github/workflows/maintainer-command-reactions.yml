@@ -55,7 +55,7 @@ jobs:
             let permission = "none";
             try {
               const result = await github.rest.repos.getCollaboratorPermissionLevel({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 username: comment.user.login,
               });
@@ -76,7 +76,7 @@ jobs:
             async function react(content) {
               try {
                 await github.rest.reactions.createForIssueComment({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   comment_id: comment.id,
                   content,
