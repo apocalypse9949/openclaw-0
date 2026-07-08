@@ -44,17 +44,17 @@ jobs:
       pull-requests: write
     runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token-fallback
         continue-on-error: true
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Mark stale unassigned issues and pull requests (primary)
         id: stale-primary
@@ -247,10 +247,10 @@ jobs:
       pull-requests: write
     runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Backfill stale closures
         uses: actions/github-script@v9
@@ -491,10 +491,10 @@ jobs:
       issues: write
     runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - name: Lock closed issues after 48h of no comments
         uses: actions/github-script@v9

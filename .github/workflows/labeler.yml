@@ -32,17 +32,17 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - uses: actions/labeler@v6
         with:
@@ -65,7 +65,7 @@ jobs:
             for (const label of sizeLabels) {
               try {
                 await github.rest.issues.getLabel({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   name: label,
                 });
@@ -74,7 +74,7 @@ jobs:
                   throw error;
                 }
                 await github.rest.issues.createLabel({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   name: label,
                   color: labelColor,
@@ -83,7 +83,7 @@ jobs:
             }
 
             const files = await github.paginate(github.rest.pulls.listFiles, {
-              owner: context.repo.owner,
+              client-id: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pullRequest.number,
               per_page: 100,
@@ -110,7 +110,7 @@ jobs:
             }
 
             const currentLabels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
-              owner: context.repo.owner,
+              client-id: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pullRequest.number,
               per_page: 100,
@@ -125,7 +125,7 @@ jobs:
                 continue;
               }
               await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pullRequest.number,
                 name,
@@ -133,7 +133,7 @@ jobs:
             }
 
             await github.rest.issues.addLabels({
-              owner: context.repo.owner,
+              client-id: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pullRequest.number,
               labels: [targetSizeLabel],
@@ -224,7 +224,7 @@ jobs:
 
             try {
               await github.rest.issues.getLabel({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 name: labelName,
               });
@@ -237,7 +237,7 @@ jobs:
             }
 
             const currentLabels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
-              owner: context.repo.owner,
+              client-id: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pullRequest.number,
               per_page: 100,
@@ -246,7 +246,7 @@ jobs:
 
             if (matchesBetaBlocker && !hasLabel) {
               await github.rest.issues.addLabels({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pullRequest.number,
                 labels: [labelName],
@@ -256,7 +256,7 @@ jobs:
 
             if (!matchesBetaBlocker && hasLabel) {
               await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pullRequest.number,
                 name: labelName,
@@ -284,7 +284,7 @@ jobs:
             }
 
             const currentLabels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
-              owner: context.repo.owner,
+              client-id: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pullRequest.number,
               per_page: 100,
@@ -300,7 +300,7 @@ jobs:
               if (labelNames.has(activePrLimitLabel)) {
                 try {
                   await github.rest.issues.removeLabel({
-                    owner: context.repo.owner,
+                    client-id: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: pullRequest.number,
                     name: activePrLimitLabel,
@@ -319,7 +319,7 @@ jobs:
               if (labelNames.has(activePrLimitLabel)) {
                 try {
                   await github.rest.issues.removeLabel({
-                    owner: context.repo.owner,
+                    client-id: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: pullRequest.number,
                     name: activePrLimitLabel,
@@ -336,7 +336,7 @@ jobs:
             const ensureLabelExists = async () => {
               try {
                 await github.rest.issues.getLabel({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   name: activePrLimitLabel,
                 });
@@ -345,7 +345,7 @@ jobs:
                   throw error;
                 }
                 await github.rest.issues.createLabel({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   name: activePrLimitLabel,
                   color: labelColor,
@@ -379,7 +379,7 @@ jobs:
 
               try {
                 const permission = await github.rest.repos.getCollaboratorPermissionLevel({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   username: authorLogin,
                 });
@@ -403,7 +403,7 @@ jobs:
               if (labelNames.has(activePrLimitLabel)) {
                 try {
                   await github.rest.issues.removeLabel({
-                    owner: context.repo.owner,
+                    client-id: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: pullRequest.number,
                     name: activePrLimitLabel,
@@ -435,7 +435,7 @@ jobs:
               await ensureLabelExists();
               if (!labelNames.has(activePrLimitLabel)) {
                 await github.rest.issues.addLabels({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: pullRequest.number,
                   labels: [activePrLimitLabel],
@@ -447,7 +447,7 @@ jobs:
             if (labelNames.has(activePrLimitLabel)) {
               try {
                 await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
+                  client-id: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: pullRequest.number,
                   name: activePrLimitLabel,
@@ -466,17 +466,17 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Backfill PR labels
         uses: actions/github-script@v9
@@ -765,17 +765,17 @@ jobs:
       issues: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v4
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Apply maintainer or trusted-contributor label
         uses: actions/github-script@v9
@@ -863,7 +863,7 @@ jobs:
 
             try {
               await github.rest.issues.getLabel({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 name: labelName,
               });
@@ -876,7 +876,7 @@ jobs:
             }
 
             const currentLabels = await github.paginate(github.rest.issues.listLabelsOnIssue, {
-              owner: context.repo.owner,
+              client-id: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
               per_page: 100,
@@ -885,7 +885,7 @@ jobs:
 
             if (matchesBetaBlocker && !hasLabel) {
               await github.rest.issues.addLabels({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 labels: [labelName],
@@ -895,7 +895,7 @@ jobs:
 
             if (!matchesBetaBlocker && hasLabel) {
               await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
+                client-id: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 name: labelName,
