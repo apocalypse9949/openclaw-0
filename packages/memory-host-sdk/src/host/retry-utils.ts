@@ -53,7 +53,7 @@ function clampNumber(value: unknown, fallback: number, min?: number, max?: numbe
 }
 
 function resolveAttempts(value: unknown, fallback: number): number {
-  if (typeof value !== "number" || !Number.isSafeInteger(value)) {
+  if (typeof value !== "number" || !Number.isFinite(value) || !Number.isSafeInteger(value)) {
     return fallback;
   }
   return Math.max(1, value);
