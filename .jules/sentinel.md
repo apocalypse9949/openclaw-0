@@ -1,0 +1,5 @@
+## 2024-05-24 - [CRITICAL] Command Injection in macOS Keychain Read via execSync
+
+**Vulnerability:** Found `execSync` being used with string interpolation to read from the macOS keychain in `readCodexKeychainAuthRecord` and `readClaudeCliKeychainCredentials` in `src/agents/cli-credentials.ts`. E.g., \`security find-generic-password -s "Codex Auth" -a "\${account}" -w\`. If `account` is manipulated, it could execute arbitrary shell commands.
+**Learning:** Using `execSync` with backticks/string interpolation for shell commands is an antipattern because standard user input or environment variables can easily break out of quotes and execute arbitrary shell commands (e.g. via \$(...) or backticks). Even though \`account\` is computed via a hash in this case, using \`execFileSync\` with an array of arguments is a structural requirement for safety to avoid potential future bugs. The memory file also explicitly mentions using `execFileSync` to mitigate command injection when interacting with macOS `security` utility.
+**Prevention:** Always use `execFileSync` or `spawn` with an array of arguments instead of string interpolating user data into `execSync` or `exec`.
