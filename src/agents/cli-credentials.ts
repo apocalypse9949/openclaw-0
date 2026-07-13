@@ -211,10 +211,12 @@ function resolveCodexKeychainParams(options?: {
   codexHome?: string;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }) {
   return {
     platform: options?.platform ?? process.platform,
     execSyncImpl: options?.execSync ?? execSync,
+    execFileSyncImpl: options?.execFileSync ?? execFileSync,
     codexHome: resolveCodexHomePath(options?.codexHome),
   };
 }
@@ -256,17 +258,19 @@ function readCodexKeychainAuthRecord(options?: {
   codexHome?: string;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
   allowKeychainPrompt?: boolean;
 }): Record<string, unknown> | null {
-  const { platform, execSyncImpl, codexHome } = resolveCodexKeychainParams(options);
+  const { platform, execFileSyncImpl, codexHome } = resolveCodexKeychainParams(options);
   if (platform !== "darwin" || options?.allowKeychainPrompt === false) {
     return null;
   }
   const account = computeCodexKeychainAccount(codexHome);
 
   try {
-    const secret = execSyncImpl(
-      `security find-generic-password -s "Codex Auth" -a "${account}" -w`,
+    const secret = execFileSyncImpl(
+      "security",
+      ["find-generic-password", "-s", "Codex Auth", "-a", account, "-w"],
       {
         encoding: "utf8",
         timeout: 5000,
@@ -290,6 +294,7 @@ function readCodexKeychainCredentials(options?: {
   codexHome?: string;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
   allowKeychainPrompt?: boolean;
 }): CodexCliCredential | null {
   const parsed = readCodexKeychainAuthRecord(options);
@@ -422,11 +427,12 @@ function readGeminiCliCredentials(options?: { homeDir?: string }): GeminiCliCred
 }
 
 function readClaudeCliKeychainCredentials(
-  execSyncImpl: ExecSyncFn = execSync,
+  execFileSyncImpl: ExecFileSyncFn = execFileSync,
 ): ClaudeCliCredential | null {
   try {
-    const result = execSyncImpl(
-      `security find-generic-password -s "${CLAUDE_CLI_KEYCHAIN_SERVICE}" -w`,
+    const result = execFileSyncImpl(
+      "security",
+      ["find-generic-password", "-s", CLAUDE_CLI_KEYCHAIN_SERVICE, "-w"],
       { encoding: "utf8", timeout: 5000, stdio: ["pipe", "pipe", "pipe"] },
     );
 
@@ -441,11 +447,11 @@ export function readClaudeCliCredentials(options?: {
   allowKeychainPrompt?: boolean;
   platform?: NodeJS.Platform;
   homeDir?: string;
-  execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): ClaudeCliCredential | null {
   const platform = options?.platform ?? process.platform;
   if (platform === "darwin" && options?.allowKeychainPrompt !== false) {
-    const keychainCreds = readClaudeCliKeychainCredentials(options?.execSync);
+    const keychainCreds = readClaudeCliKeychainCredentials(options?.execFileSync);
     if (keychainCreds) {
       log.info("read anthropic credentials from claude cli keychain", {
         type: keychainCreds.type,
@@ -470,7 +476,7 @@ export function readClaudeCliCredentialsCached(options?: {
   ttlMs?: number;
   platform?: NodeJS.Platform;
   homeDir?: string;
-  execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): ClaudeCliCredential | null {
   const platform = options?.platform ?? process.platform;
   const ttlMs = options?.ttlMs ?? 0;
@@ -486,7 +492,7 @@ export function readClaudeCliCredentialsCached(options?: {
         allowKeychainPrompt: options?.allowKeychainPrompt,
         platform,
         homeDir: options?.homeDir,
-        execSync: options?.execSync,
+        execFileSync: options?.execFileSync,
       }),
     setCache: (next) => {
       claudeCliCache = next;
@@ -617,12 +623,14 @@ export function readCodexCliCredentials(options?: {
   allowKeychainPrompt?: boolean;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): CodexCliCredential | null {
   const keychain = readCodexKeychainCredentials({
     codexHome: options?.codexHome,
     allowKeychainPrompt: options?.allowKeychainPrompt,
     platform: options?.platform,
     execSync: options?.execSync,
+    execFileSync: options?.execFileSync,
   });
   if (keychain) {
     return keychain;
@@ -679,6 +687,7 @@ export function readCodexCliCredentialsCached(options?: {
   ttlMs?: number;
   platform?: NodeJS.Platform;
   execSync?: ExecSyncFn;
+  execFileSync?: ExecFileSyncFn;
 }): CodexCliCredential | null {
   const platform = options?.platform ?? process.platform;
   const ttlMs = options?.ttlMs ?? 0;
@@ -695,6 +704,7 @@ export function readCodexCliCredentialsCached(options?: {
         allowKeychainPrompt: options?.allowKeychainPrompt,
         platform: options?.platform,
         execSync: options?.execSync,
+        execFileSync: options?.execFileSync,
       }),
     setCache: (next) => {
       codexCliCache = next;
