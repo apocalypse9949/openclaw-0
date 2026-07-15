@@ -1,0 +1,5 @@
+## 2024-05-18 - Fix Command Injection in Keychain Reading
+
+**Vulnerability:** The `execSync` function from `node:child_process` was being used to call the macOS `security` command line tool with string concatenation for finding keychain items. Although the variables seemed innocuous, using `execSync` opens the door to command injection if user-provided strings ever make it into the command line via those variables, since `execSync` runs the command through the system shell (e.g. `/bin/sh`).
+**Learning:** Even internal helper tools wrapping shell execution of system commands like `security` should use the safest available execution pattern, passing arguments as arrays via `execFile` or `execFileSync`. The memory hints explicitly state: "Operations involving the macOS 'security' utility for credential management in 'src/agents/cli-credentials.ts' must use 'execFileSync' with an array of arguments to mitigate command injection risks."
+**Prevention:** Always use `execFile` or `execFileSync` and pass arguments as an array instead of string concatenation when running shell commands using `node:child_process`.
