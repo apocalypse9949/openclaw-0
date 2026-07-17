@@ -1,0 +1,5 @@
+## 2025-02-14 - Fix Command Injection Vulnerability in Keychain Access
+
+**Vulnerability:** The application was using `child_process.execSync` and `child_process.exec` (or generic namespaced wrappers pointing to it) with interpolated string arguments to call macOS's `security` binary. Because string interpolation can be abused for command injection (e.g. if an attacker can control variables placed inside `$(...)` or string values passed into the shell), it presents a command injection risk.
+**Learning:** Using `execSync` with a formatted string instead of `execFileSync` with an array of arguments is generally unsafe and can lead to command injection if variables are not appropriately sanitized. Even if the variables come from a hash, using string interpolation with shell evaluation is a poor pattern.
+**Prevention:** Always use `execFile` or `execFileSync` instead of `exec` or `execSync` when running shell commands. Provide arguments as an array rather than a single interpolated string, preventing the shell from evaluating any user-controlled values inside them.
