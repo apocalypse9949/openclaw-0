@@ -48,20 +48,20 @@ jobs:
         id: app-token
         continue-on-error: true
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
         continue-on-error: true
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Mark stale unassigned issues and pull requests (primary)
         id: stale-primary
         continue-on-error: true
         uses: actions/stale@v10
         with:
-          repo-token: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token }}
+          repo-token: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           days-before-issue-stale: 14
           days-before-issue-close: 7
           days-before-pr-stale: 14
@@ -94,7 +94,7 @@ jobs:
         continue-on-error: true
         uses: actions/stale@v10
         with:
-          repo-token: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token }}
+          repo-token: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           days-before-issue-stale: 30
           days-before-issue-close: 10
           days-before-pr-stale: -1
@@ -118,7 +118,7 @@ jobs:
         continue-on-error: true
         uses: actions/stale@v10
         with:
-          repo-token: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token }}
+          repo-token: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           days-before-issue-stale: -1
           days-before-issue-close: -1
           days-before-pr-stale: 27
@@ -165,7 +165,7 @@ jobs:
         if: (steps.stale-primary.outcome == 'failure' || steps.stale-state.outputs.has_state == 'true') && steps.app-token-fallback.outputs.token != ''
         uses: actions/stale@v10
         with:
-          repo-token: ${{ steps.app-token-fallback.outputs.token }}
+          repo-token: ${{ steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           days-before-issue-stale: 14
           days-before-issue-close: 7
           days-before-pr-stale: 14
@@ -197,7 +197,7 @@ jobs:
         if: (steps.assigned-issue-stale-primary.outcome == 'failure' || steps.stale-state.outputs.has_state == 'true') && steps.app-token-fallback.outputs.token != ''
         uses: actions/stale@v10
         with:
-          repo-token: ${{ steps.app-token-fallback.outputs.token }}
+          repo-token: ${{ steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           days-before-issue-stale: 30
           days-before-issue-close: 10
           days-before-pr-stale: -1
@@ -220,7 +220,7 @@ jobs:
         if: (steps.assigned-stale-primary.outcome == 'failure' || steps.stale-state.outputs.has_state == 'true') && steps.app-token-fallback.outputs.token != ''
         uses: actions/stale@v10
         with:
-          repo-token: ${{ steps.app-token-fallback.outputs.token }}
+          repo-token: ${{ steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           days-before-issue-stale: -1
           days-before-issue-close: -1
           days-before-pr-stale: 27
@@ -250,7 +250,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: app-token
         with:
-          app-id: "2971289"
+          client-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Backfill stale closures
         uses: actions/github-script@v9
@@ -494,7 +494,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: app-token
         with:
-          app-id: "2729701"
+          client-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - name: Lock closed issues after 48h of no comments
         uses: actions/github-script@v9

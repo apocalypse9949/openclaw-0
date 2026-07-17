@@ -95,7 +95,6 @@ describe("cli credentials", () => {
   afterEach(() => {
     vi.useRealTimers();
     execFileSyncMock.mockClear().mockImplementation(() => undefined);
-    execFileSyncMock.mockClear().mockImplementation(() => undefined);
     delete process.env.CODEX_HOME;
     resetCliCredentialCachesForTest();
   });
@@ -330,7 +329,7 @@ describe("cli credentials", () => {
 
     const accountHash = "cli|";
 
-    execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+    execFileSyncMock.mockImplementation(() => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(String(file)).toBe("security");
       expect(argv).toContain("Codex Auth");
@@ -363,7 +362,7 @@ describe("cli credentials", () => {
     const fallbackExpiry = lastRefresh + 60 * 60 * 1000;
     const accountHash = "cli|";
 
-    execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+    execFileSyncMock.mockImplementation(() => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(String(file)).toBe("security");
       expect(argv).toContain("Codex Auth");
@@ -392,7 +391,7 @@ describe("cli credentials", () => {
     const accountHash = "cli|";
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
-      execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+      execFileSyncMock.mockImplementation(() => {
       const argv = Array.isArray(args) ? args.map(String) : [];
       expect(String(file)).toBe("security");
       expect(argv).toContain("Codex Auth");
