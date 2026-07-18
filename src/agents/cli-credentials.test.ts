@@ -401,7 +401,9 @@ describe("cli credentials", () => {
         });
       });
 
-      expect(readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
     }
@@ -463,7 +465,9 @@ describe("cli credentials", () => {
     });
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
-      expect(readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
       statSyncSpy.mockRestore();
