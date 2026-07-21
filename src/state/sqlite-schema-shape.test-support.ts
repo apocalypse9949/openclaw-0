@@ -71,9 +71,7 @@ export function collectSqliteSchemaShape(db: DatabaseSync): SqliteSchemaShape {
 }
 
 function collectColumns(db: DatabaseSync, tableName: string): ColumnShape[] {
-  return (
-    db.prepare(`PRAGMA table_info(${quoteSqliteIdentifier(tableName)})`).all() as TableInfoRow[]
-  )
+  return (db.prepare(`SELECT * FROM pragma_table_info(?)`).all(tableName) as TableInfoRow[])
     .map(({ name, type, notnull, dflt_value, pk }) => ({
       name,
       type,
