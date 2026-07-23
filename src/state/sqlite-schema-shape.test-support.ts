@@ -72,16 +72,17 @@ export function collectSqliteSchemaShape(db: DatabaseSync): SqliteSchemaShape {
 
 function collectColumns(db: DatabaseSync, tableName: string): ColumnShape[] {
   return (
-    db.prepare(`PRAGMA table_info(${quoteSqliteIdentifier(tableName)})`).all() as TableInfoRow[]
-  )
-    .map(({ name, type, notnull, dflt_value, pk }) => ({
-      name,
-      type,
-      notnull,
-      dflt_value,
-      pk,
-    }))
-    .toSorted((left, right) => left.name.localeCompare(right.name));
+    // Security fix: Use parameterized table-valued function pragma_table_info to prevent SQL injection
+    (db.prepare(`SELECT * FROM pragma_table_info(?)`).all(tableName) as TableInfoRow[])
+      .map(({ name, type, notnull, dflt_value, pk }) => ({
+        name,
+        type,
+        notnull,
+        dflt_value,
+        pk,
+      }))
+      .toSorted((left, right) => left.name.localeCompare(right.name))
+  );
 }
 
 function collectIndexes(db: DatabaseSync, tableName: string): IndexShape[] {
