@@ -96,7 +96,9 @@ function ensureColumn(
   definition: string,
 ): void {
   // Security fix: Use parameterized table-valued function pragma_table_info to prevent SQL injection
-  const rows = db.prepare(`SELECT * FROM pragma_table_info(?)`).all(table) as Array<{ name: string }>;
+  const rows = db.prepare(`SELECT * FROM pragma_table_info(?)`).all(table) as Array<{
+    name: string;
+  }>;
   if (rows.some((row) => row.name === column)) {
     return;
   }
