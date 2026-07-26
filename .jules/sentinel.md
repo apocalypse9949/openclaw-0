@@ -1,4 +1,5 @@
 ## 2024-05-18 - [CRITICAL] Fix command injection vulnerability in macOS security utility wrapper
+
 **Vulnerability:** `execSync` was used with string interpolation (`security find-generic-password -s "${SERVICE}"`) to fetch credentials. This allowed potential command injection if the service name or account hash contained shell metacharacters like `$()` or backticks.
 **Learning:** Always use `execFileSync` or `spawnSync` with an array of arguments to execute system commands, avoiding the shell entirely when handling potentially user-controlled or dynamically generated strings.
 **Prevention:** Avoid `execSync` for shell commands unless strictly necessary. If a shell command is unavoidable, properly escape all arguments using `JSON.stringify` or equivalent, though passing arguments via an array (`execFileSync`) is much safer.
