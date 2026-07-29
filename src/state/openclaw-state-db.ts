@@ -112,7 +112,9 @@ function ensureOpenClawStatePermissions(pathname: string, env: NodeJS.ProcessEnv
 
 function tableHasColumn(db: DatabaseSync, tableName: string, columnName: string): boolean {
   // 🛡️ Sentinel: Fix SQL injection using parameterized table-valued function
-  const rows = db.prepare(`SELECT * FROM pragma_table_info(?)`).all(tableName) as Array<{ name?: unknown }>;
+  const rows = db.prepare(`SELECT * FROM pragma_table_info(?)`).all(tableName) as Array<{
+    name?: unknown;
+  }>;
   return rows.some((row) => row.name === columnName);
 }
 

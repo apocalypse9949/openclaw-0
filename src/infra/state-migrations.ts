@@ -504,7 +504,9 @@ function archiveLegacyImportSource(params: {
 
 function listSqliteColumns(db: DatabaseSync, table: string): Set<string> {
   // 🛡️ Sentinel: Fix SQL injection using parameterized table-valued function
-  const rows = db.prepare(`SELECT * FROM pragma_table_info(?)`).all(table) as Array<{ name?: string }>;
+  const rows = db.prepare(`SELECT * FROM pragma_table_info(?)`).all(table) as Array<{
+    name?: string;
+  }>;
   return new Set(rows.flatMap((row) => (row.name ? [row.name] : [])));
 }
 

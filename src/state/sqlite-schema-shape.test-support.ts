@@ -72,9 +72,7 @@ export function collectSqliteSchemaShape(db: DatabaseSync): SqliteSchemaShape {
 
 function collectColumns(db: DatabaseSync, tableName: string): ColumnShape[] {
   // 🛡️ Sentinel: Fix SQL injection using parameterized table-valued function
-  return (
-    db.prepare(`SELECT * FROM pragma_table_info(?)`).all(tableName) as TableInfoRow[]
-  )
+  return (db.prepare(`SELECT * FROM pragma_table_info(?)`).all(tableName) as TableInfoRow[])
     .map(({ name, type, notnull, dflt_value, pk }) => ({
       name,
       type,
@@ -87,9 +85,7 @@ function collectColumns(db: DatabaseSync, tableName: string): ColumnShape[] {
 
 function collectIndexes(db: DatabaseSync, tableName: string): IndexShape[] {
   // 🛡️ Sentinel: Fix SQL injection using parameterized table-valued function
-  return (
-    db.prepare(`SELECT * FROM pragma_index_list(?)`).all(tableName) as IndexListRow[]
-  )
+  return (db.prepare(`SELECT * FROM pragma_index_list(?)`).all(tableName) as IndexListRow[])
     .map(({ name, unique, origin, partial }) => ({
       name: normalizeAutoIndexName(name),
       unique,
@@ -102,4 +98,3 @@ function collectIndexes(db: DatabaseSync, tableName: string): IndexShape[] {
 function normalizeAutoIndexName(name: string): string {
   return name.startsWith("sqlite_autoindex_") ? "sqlite_autoindex" : name;
 }
-
