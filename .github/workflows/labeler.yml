@@ -32,17 +32,17 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: app-token
         continue-on-error: true
         with:
-          client-id: "2729701"
+          app-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          client-id: "2971289"
+          app-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - uses: actions/labeler@v6
         with:
@@ -466,17 +466,17 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: app-token
         continue-on-error: true
         with:
-          client-id: "2729701"
+          app-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          client-id: "2971289"
+          app-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Backfill PR labels
         uses: actions/github-script@v9
@@ -765,17 +765,17 @@ jobs:
       issues: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: app-token
         continue-on-error: true
         with:
-          client-id: "2729701"
+          app-id: "2729701"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: app-token-fallback
         if: steps.app-token.outcome == 'failure'
         with:
-          client-id: "2971289"
+          app-id: "2971289"
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_FALLBACK }}
       - name: Apply maintainer or trusted-contributor label
         uses: actions/github-script@v9
