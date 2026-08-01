@@ -96,7 +96,6 @@ type ClaudeCliWriteOptions = ClaudeCliFileOptions & {
   writeFile?: (credentials: OAuthCredentials, options?: ClaudeCliFileOptions) => boolean;
 };
 
-
 type ExecFileSyncFn = typeof execFileSync;
 
 function resolveClaudeCliCredentialsPath(homeDir?: string) {

@@ -330,7 +330,8 @@ describe("cli credentials", () => {
     const accountHash = "cli|";
 
     execFileSyncMock.mockImplementation((file: unknown, args?: unknown) => {
-      const command = file === "security" && Array.isArray(args) ? "security " + args.join(" ") : String(file);
+      const command =
+        file === "security" && Array.isArray(args) ? "security " + args.join(" ") : String(file);
       const cmd = String(command);
       expect(cmd).toContain("Codex Auth");
       expect(cmd).toContain(accountHash);
@@ -363,7 +364,8 @@ describe("cli credentials", () => {
     const accountHash = "cli|";
 
     execFileSyncMock.mockImplementation((file: unknown, args?: unknown) => {
-      const command = file === "security" && Array.isArray(args) ? "security " + args.join(" ") : String(file);
+      const command =
+        file === "security" && Array.isArray(args) ? "security " + args.join(" ") : String(file);
       const cmd = String(command);
       expect(cmd).toContain("Codex Auth");
       expect(cmd).toContain(accountHash);
@@ -392,7 +394,8 @@ describe("cli credentials", () => {
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
       execFileSyncMock.mockImplementation((file: unknown, args?: unknown) => {
-      const command = file === "security" && Array.isArray(args) ? "security " + args.join(" ") : String(file);
+        const command =
+          file === "security" && Array.isArray(args) ? "security " + args.join(" ") : String(file);
         const cmd = String(command);
         expect(cmd).toContain("Codex Auth");
         expect(cmd).toContain(accountHash);
@@ -404,7 +407,9 @@ describe("cli credentials", () => {
         });
       });
 
-      expect(readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
     }
@@ -466,7 +471,9 @@ describe("cli credentials", () => {
     });
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
-      expect(readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
       statSyncSpy.mockRestore();
