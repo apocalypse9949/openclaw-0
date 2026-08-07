@@ -36,7 +36,6 @@ jobs:
           permission-members: read
       - uses: actions/create-github-app-token@v3
         id: app-token-fallback
-        continue-on-error: true
         if: steps.app-token.outcome == 'failure'
         continue-on-error: true
         with:
@@ -46,6 +45,6 @@ jobs:
           permission-members: read
       - name: Check real behavior proof
         env:
-          GH_APP_TOKEN: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token }}
+          GH_APP_TOKEN: ${{ steps.app-token.outputs.token || steps.app-token-fallback.outputs.token || secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/github/real-behavior-proof-check.mjs
