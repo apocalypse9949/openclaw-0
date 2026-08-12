@@ -1,4 +1,5 @@
 ## 2025-02-14 - Fix command injection vulnerability in keychain credential reading
+
 **Vulnerability:** The macOS `security find-generic-password` utility was invoked using `execSync` with a single command string incorporating a variable (e.g., `account`). This pattern is vulnerable to command injection if variables can contain untrusted inputs.
 **Learning:** `exec` or `execSync` with string interpolation should be avoided for shelling out. Even if a value is ostensibly an internal identifier (like a hashed path or static constant), the practice introduces inherent fragility and a latent attack vector.
 **Prevention:** Always use `execFile`, `execFileSync`, or `spawn` alongside arrays of specific arguments rather than formatting arguments directly into a shell command string. This avoids the shell layer parsing and evaluation phase entirely, neutralizing command injection risks.

@@ -334,7 +334,7 @@ describe("cli credentials", () => {
       const argsArray = args as string[];
       expect(bin).toBe("security");
       expect(argsArray).toContain("Codex Auth");
-      expect(argsArray.some(arg => arg.includes(accountHash))).toBe(true);
+      expect(argsArray.some((arg) => arg.includes(accountHash))).toBe(true);
       return JSON.stringify({
         tokens: {
           id_token: "keychain-id-token",
@@ -405,7 +405,9 @@ describe("cli credentials", () => {
         });
       });
 
-      expect(readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "darwin", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
     }
@@ -467,7 +469,9 @@ describe("cli credentials", () => {
     });
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(Number.NaN);
     try {
-      expect(readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock })).toBeNull();
+      expect(
+        readCodexCliCredentials({ platform: "linux", execFileSync: execFileSyncMock }),
+      ).toBeNull();
     } finally {
       dateNowSpy.mockRestore();
       statSyncSpy.mockRestore();
